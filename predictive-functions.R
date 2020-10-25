@@ -39,7 +39,6 @@ correlate_census <- function(frame, num_to_eval){
   top_cor <- append(top_cor, 'income')
   smallds <- subset(frame, select=top_cor)
   ggcorr(smallds, label = TRUE, palette = "RdGy")
-<<<<<<< HEAD
 }
 
 get_accuracy <- function(predictions, labels) {
@@ -47,6 +46,4 @@ get_accuracy <- function(predictions, labels) {
    tf <- unlist(matching, use.names=FALSE)
    return (sum(tf)/length(tf))
 }
-=======
-}
->>>>>>> c97815e... Adjusted color
+
