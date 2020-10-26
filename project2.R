@@ -48,6 +48,7 @@ pairs(smallds)
 #You may have to subset the data
 #To subset, pick the most correlated attributes to use – they may all be relevant 
 #document your rationale for eliminating some attributes.
+#SEE SUBSETTING BELOW
 
 
 #translate alphanumeric (e.g., character) values into numeric values.
@@ -63,7 +64,8 @@ data_numeric
 
 #Apply three clustering techniques to the subsetted data: KMeans, kNN, and iClust.
 #You should analyze the data for clusters from k =2 to 10.
-subset_cols <- c("age", "race", "sex", "education", "occupation")
+# subset_cols <- c("age", "race", "sex", "education", "occupation")
+subset_cols <- c("age", "sex", "hours_per_week", "capital_gain", "capital_loss")
 small_data_numeric <- data_numeric[,subset_cols]
 small_data_numeric
 
@@ -79,6 +81,7 @@ test <- small_data_numeric[(test_train_split_index + 1):nrow(small_data_numeric)
 
 #this part fails when using the small data
 for(i in 2:10) {
+  print("Num clusters: " + i)
   kmeans_result <- kmeans(small_data_numeric, centers=i) #need to do others as well
   fviz_cluster(kmeans_result, data=small_data_numeric) #plot results
 
@@ -97,34 +100,99 @@ for(i in 2:10) {
   accuracy[[i]] <- get_accuracy(income[(test_train_split_index + 1):nrow(income),], preds)
 }
 
+#TODO: Still need to implement iClust
+
 #TODO: Build a table with your results succinctly displayed. For some reason accuracy is always 0
 accuracy
 
 #Document your results in your report in separate sections. 
 #Show screen shots of plots of the clusters.
-#plot stuff for kmeans clustering
+
 
 #4. TODO: Prediction
-
 #Use adult.test as your test set.
+path <- here("data", "adult.data")
+test_data <- file_to_table(path, header)
 
 #Try the lm(…) method to get linear fits for the data. 
-#This will not work on all attributes, so you must determine which ones it will work on. 
+#This will not work on all attributes, so you must determine which ones it will work on.
+# [age~sex, ]
+#TODO: Try other combos for both of these
+simple.fit = lm(age~hours_per_week, data=test_data)
+summary(simple.fit)
+
+#Try the glm(…)method to get linear fits for the data. This will not work on all attributes, so you must determine which ones it will work on.
+adv.fit = glm(age~hours_per_week, data=test_data)
+summary(adv.fit)
+
+
 
 #Try clusters of 3,5,7,9 --> generate labels using kmeans.
-#Do a cross-tabulation of the results to see how good you did.
+#clean data
+test_income_data <- test_data[15]
+data[15] <- NULL #remove last column
+test_data_numeric <- data.matrix(data)
+
+test_train_split_index <- floor(nrow(test_data_numeric) * 0.7)
+train <- test_data_numeric[1:test_train_split_index,]
+test <- test_data_numeric[(test_train_split_index + 1):nrow(test_data_numeric),]
+
+#storage of results
+knn_results <- vector("list", 9)
+kmeans_results <- vector("list", 9)
+kmeans_plots <- vector("list", 9)
+accuracy <- vector("list", 9)
+
+for(i in 3:9) {
+  if(i%%2 != 0){
+    print("Num clusters: ")
+    print(toString(i))
+    kmeans_result <- kmeans(test_data_numeric, centers=i) #need to do others as well
+    kmeans_plots[[i]] <- fviz_cluster(kmeans_result, data=test_data_numeric) #plot results
+    kmeans_plots[[i]]
+    
+    #knn
+    knn_kmeans <- kmeans(train, centers=i)
+    knn_labels <- knn_kmeans$cluster
+    knn_result <- knn(train, test, knn_labels, k=i)
+    preds <- knn_result
+    
+    #knn
+    knn_kmeans <- kmeans(train, centers=i)
+    knn_labels <- knn_kmeans$cluster
+    knn_result <- knn(train, test, knn_labels, k=i)
+    preds <- knn_result
+    
+    #Do a cross-tabulation of the results to see how good you did.
+    ct <- CrossTable(income[(test_train_split_index + 1):nrow(income),], preds, chisq=FALSE)
+    
+    #add to output arrays
+    kmeans_results[[i]] <- kmeans_result
+    knn_results[[i]] <- knn_result
+   
+    #TODO: get accuracy --> not working not sure why
+    income_labels <- income[(test_train_split_index + 1):nrow(income),]
+    matching <- Map(function(income, labels) { income %in% labels }, preds, income_labels)
+    tf <- unlist(matching, use.names=FALSE)
+    accuracy[[i]] <- (sum(tf)/length(tf))
+  }
+
+}
+
+
+#display graphs
+# library(gridExtra)
+# grid.arrange(kmeans_plots[0], kmeans_plots[1], kmeans_plots[2], kmeans_plots[3], nrow = 2)
+
 
 
 #Calculate the accuracy, false positive, etc. and display in a table.
-
 #Try different parameter values and combinations of attributes.
-#Use predict(…) to predict the values for the test set after training with the training set.
+  #Use predict(…) to predict the values for the test set after training with the training set.
+  #TODO: Implement our own accuracy function? To get all false/true positive/negative values?
 
-#Try the glm(…)method to get linear fits for the data. This will not work on all attributes, so you must determine which ones it will work on. 
 
-#Try the lm(…) method to get linear fits for the data. 
-#This will not work on all attributes, so you must determine which ones it will work on. 
-
+#Answer in report:
 #What differences to do you see between kmeans and kNN?
 #What differences do you see between lm(…) and glm(….)?
   
