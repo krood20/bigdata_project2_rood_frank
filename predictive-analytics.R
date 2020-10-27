@@ -4,6 +4,8 @@ source("predictive-functions.R")
 
 path <- here("data", "adult.test")
 census <- create_census(path)
+
+# Mutate factors into numerical
 census.numerical <- lapply(census, function(x) {
   if(is.factor(x)) as.numeric(x) else x
 })
