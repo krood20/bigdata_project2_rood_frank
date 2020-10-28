@@ -73,8 +73,7 @@ plot_census_characteristics <- function(census){
   
   # Capital gain vs income
   ggplot(census) + aes(x=capital_gain, y=..density.., group=income, fill=income) +
-   geom_histogram(bins=10, color='black') +
-   scale_y_continuous(labels = scales::percent_format())
+   geom_histogram(bins=10, color='black')
 }
 
 attr(plot_census_characteristics, 'comment') <- 'Plots charecteristics of census data'
