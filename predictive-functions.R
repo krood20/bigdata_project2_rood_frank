@@ -51,11 +51,10 @@ correlate_census <- function(frame, num_to_eval){
   smallds <- subset(frame, select=top_cor)
   cor.chart <- ggcorr(smallds, label = TRUE)
   print(cor.chart)
-  cor.pairs <- ggpairs(
+  ggpairs(
     smallds,
     lower = list(continuous = wrap("points", alpha = 0.3, size=0.1))
   )
-  print(cor.pairs)
 }
 
 attr(correlate_census, 'comment') <- 'Calculates top N correlated attributes against income, displays using ggcor, and ggplot'
