@@ -73,9 +73,9 @@ plot_census_characteristics <- function(census){
   print(hours_income)
   
   # Capital gain vs income
-  #ggplot(census) + aes(x=capital_gain, y=..density.., group=income, fill=income) +
-  #  geom_histogram(bins=10, color='black') + 
-  #  scale_y_continuous(labels = scales::percent_format())
+  ggplot(census) + aes(x=capital_gain, y=..density.., group=income, fill=income) +
+   geom_histogram(bins=10, color='black') +
+   scale_y_continuous(labels = scales::percent_format())
 }
 
 attr(plot_census_characteristics, 'comment') <- 'Plots charecteristics of census data'
@@ -93,6 +93,18 @@ plot_relatavity <- function(census.factors, column, xlab){
     geom_bar(stat="identity", position="dodge", color = 'black') +
     labs(x = xlab, y = 'Percent', fill = "Income") + 
     scale_y_continuous(labels = scales::percent_format())
+}
+
+plot_bins <- function(census.factors, column, breaks, tags, title){
+  group_tags <- cut(
+    census.factors[[column]],
+    breaks=breaks,
+    labels=tags,
+    include.lowest = TRUE,
+    right =TRUE
+  )
+  census.factors[[column]] <- paste(group_tags)
+  plot_relatavity(census.factors, column, title)
 }
 
 get_accuracy <- function(predictions, labels) {
