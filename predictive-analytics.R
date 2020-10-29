@@ -11,7 +11,9 @@ census.numerical <- lapply(census.factors, function(x) {
 })
 census.numerical <- as.data.frame(census.numerical)
 
-correlate_census(census.numerical, 5)
+# Commenting because its documented, and slow
+#correlate_census(census.numerical, 5)
+
 plot_census_characteristics(census.factors)
 
 plot_relatavity(census.factors, 'education_num', 'Years of Education')
@@ -21,5 +23,7 @@ tags <- c('<20', '20-40', '40-60', '60-80', '80-100')
 plot_bins(census.factors, 'hours_per_week', breaks, tags, 'Hours Per Week')
 
 breaks <- c(0, 1, 25000, 10000000)
-tags <- c('-', '<25K', '25K+')
+tags <- c('0', '1-25K', '25K+')
 plot_bins(census.factors, 'capital_gain', breaks, tags, 'Capital Gain')
+
+plot_distribution(census.factors, 'age', 'Age')

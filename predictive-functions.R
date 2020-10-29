@@ -58,26 +58,17 @@ correlate_census <- function(frame, num_to_eval){
 }
 
 attr(correlate_census, 'comment') <- 'Calculates top N correlated attributes against income, displays using ggcor, and ggplot'
-attr(correlate_census, 'help') <- 'Works with numerical census (factor as numeric), to determine N most correlated pairs'
+attr(correlate_census, 'help') <- 'Works with numerical census (factor as numeric)'
 
-plot_census_characteristics <- function(census){
-  # Sex vs income
-  sex_income <- ggplot(census) + aes(x = age, group=income, fill=income) + 
-    geom_histogram(binwidth = 1, color = 'black')
-  print(sex_income)
-  
-  # Hours/w vs income
-  hours_income <- ggplot(census) + aes(x = hours_per_week, group=income, fill=income) + 
-    geom_histogram(binwidth = 10, color = 'black')
-  print(hours_income)
-  
-  # Capital gain vs income
-  ggplot(census) + aes(x=capital_gain, y=..density.., group=income, fill=income) +
-   geom_histogram(bins=10, color='black')
+plot_distribution <- function(census.factors, column, xlab, binwidth = 1){
+  ggplot(census.factors) +
+    aes_string(x = column, group = 'income', fill = 'income') +
+    labs(x = xlab, y = 'Count') +
+    geom_histogram(binwidth = binwidth, color='black')
 }
 
-attr(plot_census_characteristics, 'comment') <- 'Plots charecteristics of census data'
-attr(plot_census_characteristics, 'help') <- 'Based on factors influencing income, display histograms given census'
+attr(plot_distribution, 'comment') <- 'Plots histogram of any column to show data distrubtion'
+attr(plot_distribution, 'help') <- 'Desinged to work with factor census'
 
 plot_relatavity <- function(census.factors, column, xlab){
   income_ed <- data.frame(table(census.factors$income, census.factors[[column]]))
@@ -93,7 +84,10 @@ plot_relatavity <- function(census.factors, column, xlab){
     scale_y_continuous(labels = scales::percent_format())
 }
 
-plot_bins <- function(census.factors, column, breaks, tags, title){
+attr(plot_relatavity, 'comment') <- 'Plots bar of any column in relation to income along the X axis with label'
+attr(plot_relatavity, 'help') <- 'Designed to work with facor census'
+
+plot_bins <- function(census.factors, column, breaks, tags, xlab){
   group_tags <- cut(
     census.factors[[column]],
     breaks=breaks,
@@ -102,8 +96,11 @@ plot_bins <- function(census.factors, column, breaks, tags, title){
     right =TRUE
   )
   census.factors[[column]] <- paste(group_tags)
-  plot_relatavity(census.factors, column, title)
+  plot_relatavity(census.factors, column, xlab)
 }
+
+attr(plot_relatavity, 'comment') <- 'Plots bar of any column using binned data'
+attr(plot_relatavity, 'help') <- 'Calls plot_relativity after data is binned based on breaks and tags'
 
 get_accuracy <- function(predictions, labels) {
    matching <- Map(function(income, labels) { income %in% labels }, predictions, labels)
