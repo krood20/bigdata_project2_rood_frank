@@ -33,9 +33,9 @@ census.means <- as.data.frame(census.means)
 # KMeans
 for(k in 2:10){
   means <- kmeans(census.means, k)
-  print(table(data.frame(census.numerical$income, means$cluster)))
+  print(table(data.frame(census.factors$income, means$cluster)))
   acc <- 100*(means$betweenss/means$totss)
-  message(sprintf('KMeans: k=%d accuracy=%f', k, acc))
+  message(sprintf('KMeans: k=%d accuracy=%f%%', k, acc))
 }
 
 path.test <- here("data", "adult.test")
@@ -50,7 +50,8 @@ census.test.means <- as.data.frame(census.test.means)
 #KNN
 for(k in 2:10){
   knn <- knn(train=census.means, test=census.test.means, cl=census.numerical$income, k=k)
-  acc <- 100 * sum(census.numerical$income == data.frame(knn))/length(census.numerical$income)
+  print(table(census.test.factors$income, knn))
+  acc <- 100 * sum(census.test.numerical$income == data.frame(knn))/length(census.test.numerical$income)
   message(sprintf('KNN: K=%d, accuracy=%f%%', k, acc))
 }
 
